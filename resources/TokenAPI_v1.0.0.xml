@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api xmlns="http://ws.apache.org/ns/synapse"
+     name="TokenAPI"
+     context="/token_api/1.0.0"
+     version="1.0.0"
+     version-type="context"
+     binds-to="default">
+   <resource methods="POST"
+             binds-to="default"
+             url-mapping="/token"
+             faultSequence="fault">
+      <inSequence>
+         <property name="api.ut.backendRequestTime"
+                   expression="get-property('SYSTEM_TIME')"/>
+         <filter source="$ctx:AM_KEY_TYPE" regex="PRODUCTION">
+            <then>
+               <send>
+                  <endpoint key="TokenAPI--v1.0.0_APIproductionEndpoint"/>
+               </send>
+            </then>
+            <else>
+               <send>
+                  <endpoint key="TokenAPI--v1.0.0_APIsandboxEndpoint"/>
+               </send>
+            </else>
+         </filter>
+      </inSequence>
+      <outSequence>
+         <filter source="$ctx:AM_KEY_TYPE" regex="PRODUCTION">
+            <then/>
+            <else/>
+         </filter>
+         <send/>
+      </outSequence>
+   </resource>
+   <handlers>
+      <handler class="org.wso2.carbon.apim.handler.ThrottleHelperHandler"/>
+      <handler class="org.wso2.carbon.apimgt.gateway.handlers.common.APIMgtLatencyStatsHandler">
+         <property name="apiUUID" value="efea6115-a586-45b6-b344-7d6f4c039c5d"/>
+      </handler>
+      <handler class="org.wso2.carbon.apimgt.gateway.handlers.security.CORSRequestHandler">
+         <property name="apiImplementationType" value="ENDPOINT"/>
+         <property name="ApiKeyHeader" value="ApiKey"/>
+         <property name="AuthorizationHeader" value="Authorization"/>
+      </handler>
+      <handler class="org.wso2.carbon.apimgt.gateway.handlers.common.APIStatusHandler"/>
+      <handler class="com.sample.handlers.PreserveAuthHeaderHandler">
+         <property name="AuthorizationHeader" value="Authorization"/>
+      </handler>
+      <handler class="org.wso2.carbon.apimgt.gateway.handlers.security.APIAuthenticationHandler">
+         <property name="RemoveOAuthHeadersFromOutMessage" value="true"/>
+         <property name="APILevelPolicy" value=""/>
+         <property name="ApiKeyHeader" value="ApiKey"/>
+         <property name="AuthorizationHeader" value="Authorization"/>
+         <property name="Audiences" value="all"/>
+         <property name="keyManagers" value="all"/>
+         <property name="APISecurity" value="oauth_basic_auth_api_key_mandatory,oauth2"/>
+         <property name="apiUUID" value="efea6115-a586-45b6-b344-7d6f4c039c5d"/>
+      </handler>
+      <handler class="org.wso2.carbon.apimgt.gateway.handlers.throttling.ThrottleHandler">
+         <property name="productionUnitTime" value="1000"/>
+         <property name="sandboxUnitTime" value="1000"/>
+      </handler>
+      <handler class="org.wso2.carbon.apimgt.gateway.handlers.analytics.APIMgtGoogleAnalyticsTrackingHandler">
+         <property name="configKey" value="ga-config-key"/>
+      </handler>
+      <handler class="org.wso2.carbon.apimgt.gateway.handlers.ext.APIManagerExtensionHandler"/>
+   </handlers>
+</api>
