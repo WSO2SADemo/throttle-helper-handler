@@ -407,8 +407,8 @@ $out_sequences.get("$resource.getUriTemplate()").get($uri)
             ## print the handlers
             #if( $handlers.size() > 0 )
 <handlers xmlns="http://ws.apache.org/ns/synapse">
-    #if($apiName == 'TokenAPI')
-        <handler class="org.wso2.carbon.apim.handler.ThrottleHelperHandler"/>
+    #if($apiObj.additionalProperties.get('AddThrottleHelperHandler') == true)
+    <handler class="org.wso2.carbon.apim.handler.ThrottleHelperHandler"/>
     #end
     #foreach( $handler in $handlers )
         #if($handler.className == 'org.wso2.carbon.apimgt.gateway.handlers.security.APIAuthenticationHandler')
