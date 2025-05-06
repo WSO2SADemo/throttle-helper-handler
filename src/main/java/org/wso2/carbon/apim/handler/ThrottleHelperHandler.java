@@ -1,5 +1,7 @@
 package org.wso2.carbon.apim.handler;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.synapse.MessageContext;
 import org.apache.synapse.core.axis2.Axis2MessageContext;
 import org.apache.synapse.rest.AbstractHandler;
@@ -9,8 +11,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ThrottleHelperHandler extends AbstractHandler {
+    private static final Logger log = LogManager.getLogger(ThrottleHelperHandler.class);
     public boolean handleRequest(MessageContext messageContext) {
         Map headers = getTransportHeaders(messageContext);
+        log.info("ThrottleHelperHandler.handleRequest() invoked");
         String client_id = "empty_client_id";
         if (headers.get("client_id") != null) {
             client_id = headers.get("client_id").toString();
